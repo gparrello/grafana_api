@@ -1,6 +1,6 @@
 # Grafana + API
 
-Exposes a simple API from a database
+Exposes a simple API from a database. Then exposes the data the database receives through the API in a dashboard.
 
 ## First run
 
