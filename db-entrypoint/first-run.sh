@@ -1,0 +1,11 @@
+#!/bin/bash
+# Create users and schema for PostgREST connection
+psql -v ON_ERROR_STOP=1 --username "${POSTGRES_USER}" --dbname "${POSTGRES_DB}" <<-EOSQL
+    CREATE ROLE ${API_USER} WITH password '${API_PASSWORD}' LOGIN;
+    CREATE ROLE ${API_ANON_USER} nologin;
+    GRANT ${API_ANON_USER} TO ${API_USER};
+    CREATE SCHEMA IF NOT EXISTS ${API_SCHEMA};
+    GRANT ALL ON SCHEMA ${API_SCHEMA} TO ${API_USER};
+    GRANT USAGE ON SCHEMA ${API_SCHEMA} TO ${API_ANON_USER};
+EOSQL
+exit 0

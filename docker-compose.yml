@@ -1,0 +1,35 @@
+version: '3'
+
+volumes:
+    db-data:
+
+services:
+
+    db:
+        image: "postgres:latest"
+        restart: always
+        ports:
+            - 5432:5432
+        environment:
+            POSTGRES_USER: "${POSTGRES_USER}"
+            POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+            POSTGRES_DB: "${POSTGRES_DB}"
+            API_USER: "${API_USER}"
+            API_PASSWORD: "${API_PASSWORD}"
+            API_ANON_USER: "${API_ANON_USER}"
+            API_SCHEMA: "${API_SCHEMA}"
+        volumes:
+            - "./db-entrypoint:/docker-entrypoint-initdb.d"
+            - "db-data:/var/lib/postgresql/data" # based on: https://stackoverflow.com/questions/41637505/how-to-persist-data-in-a-dockerized-postgres-database-using-volumes
+
+    api:
+        image: "postgrest/postgrest:latest"
+        restart: always
+        ports:
+            - 3000:3000
+        environment:
+            PGRST_DB_URI: "postgres://${API_USER}:${API_PASSWORD}@db/${POSTGRES_DB}"
+            PGRST_DB_ANON_ROLE: "${API_ANON_USER}"
+            PGRST_DB_SCHEMA: "${API_SCHEMA}"
+        depends_on:
+            - db
