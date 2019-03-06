@@ -22,6 +22,9 @@ services:
       DASHBOARD_DB_USER: "${DASHBOARD_DB_USER}"
       DASHBOARD_DB_PASSWORD: "${DASHBOARD_DB_PASSWORD}"
       DASHBOARD_DB_DATABASE: "${DASHBOARD_DB_DATABASE}"
+      RESULTS_USER: "${RESULTS_USER}"
+      RESULTS_PASSWORD: "${RESULTS_PASSWORD}"
+      RESULTS_SCHEMA: "${RESULTS_SCHEMA}"
     volumes:
       - "./db-entrypoint:/docker-entrypoint-initdb.d"
       - "db-data:/var/lib/postgresql/data" # based on: https://stackoverflow.com/questions/41637505/how-to-persist-data-in-a-dockerized-postgres-database-using-volumes
@@ -62,5 +65,8 @@ services:
       DASHBOARD_DB_DATABASE: "${DASHBOARD_DB_DATABASE}"
       DASHBOARD_ADMIN_USER: "${DASHBOARD_ADMIN_USER}"
       DASHBOARD_ADMIN_PASSWORD: "${DASHBOARD_ADMIN_PASSWORD}"
+      RESULTS_USER: "${RESULTS_USER}"
+      RESULTS_PASSWORD: "${RESULTS_PASSWORD}"
+      RESULTS_SCHEMA: "${RESULTS_SCHEMA}"
     depends_on:
       - db
