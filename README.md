@@ -18,4 +18,5 @@ $ docker-compose up
 * ~~Create script to add users to Postgres that have INSERT permission to the API schema in the postgres database~~ Done
 * Add JWK generation to team creation script
 * Add send credentials by email to team creation script
+* Add test table and verification (being able to post to the API with generated token) in team creation script
 * Add SSL with nginx container and [Let's Encrypt](https://letsencrypt.org/)
