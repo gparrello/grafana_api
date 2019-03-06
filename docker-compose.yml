@@ -2,6 +2,7 @@ version: '3'
 
 volumes:
   db-data:
+  grafana-data:
 
 services:
 
@@ -43,10 +44,13 @@ services:
     depends_on:
       - db
 
-    dashboard: # docs: http://docs.grafana.org/installation/docker/
-        image: "grafana/grafana:master"
-        restart: always
-        ports:
-            - 3001:3000
-        depends_on:
-            - db
+  dashboard: # docs: http://docs.grafana.org/installation/docker/
+    image: "grafana/grafana:master"
+    restart: always
+    ports:
+      - 3001:3000
+    volumes:
+      - "grafana-data:/var/lib/grafana"
+      #- "./.grafana.ini:/etc/grafana/grafana.ini"
+    depends_on:
+      - db
