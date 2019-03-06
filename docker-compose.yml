@@ -19,6 +19,9 @@ services:
       API_PASSWORD: "${API_PASSWORD}"
       API_ANON_USER: "${API_ANON_USER}"
       API_SCHEMA: "${API_SCHEMA}"
+      DASHBOARD_DB_USER: "${DASHBOARD_DB_USER}"
+      DASHBOARD_DB_PASSWORD: "${DASHBOARD_DB_PASSWORD}"
+      DASHBOARD_DB_DATABASE: "${DASHBOARD_DB_DATABASE}"
     volumes:
       - "./db-entrypoint:/docker-entrypoint-initdb.d"
       - "db-data:/var/lib/postgresql/data" # based on: https://stackoverflow.com/questions/41637505/how-to-persist-data-in-a-dockerized-postgres-database-using-volumes
@@ -51,6 +54,13 @@ services:
       - 3001:3000
     volumes:
       - "grafana-data:/var/lib/grafana"
-      #- "./.grafana.ini:/etc/grafana/grafana.ini"
+      - "./.grafana.ini:/etc/grafana/grafana.ini"
+      - "./grafana-provisioning:/etc/grafana/provisioning"
+    environment:
+      DASHBOARD_DB_USER: "${DASHBOARD_DB_USER}"
+      DASHBOARD_DB_PASSWORD: "${DASHBOARD_DB_PASSWORD}"
+      DASHBOARD_DB_DATABASE: "${DASHBOARD_DB_DATABASE}"
+      DASHBOARD_ADMIN_USER: "${DASHBOARD_ADMIN_USER}"
+      DASHBOARD_ADMIN_PASSWORD: "${DASHBOARD_ADMIN_PASSWORD}"
     depends_on:
       - db
