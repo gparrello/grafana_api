@@ -47,6 +47,7 @@ services:
       PGRST_DB_URI: "postgres://${API_USER}:${API_PASSWORD}@db/${POSTGRES_DB}"
       PGRST_DB_ANON_ROLE: "${API_ANON_USER}"
       PGRST_DB_SCHEMA: "${API_SCHEMA}"
+      PGRST_JWT_SECRET: "${API_JWT_SECRET}"
     depends_on:
       - db
 
