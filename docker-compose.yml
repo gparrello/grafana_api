@@ -57,7 +57,7 @@ services:
       - ${DASHBOARD_PORT}:3000
     volumes:
       - "grafana-data:/var/lib/grafana"
-      - "./.grafana.ini:/etc/grafana/grafana.ini"
+      - "./grafana.ini:/etc/grafana/grafana.ini"
       - "./grafana-provisioning:/etc/grafana/provisioning"
     environment:
       DASHBOARD_DB_USER: "${DASHBOARD_DB_USER}"
