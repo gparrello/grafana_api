@@ -14,3 +14,6 @@ $ docker-compose up
 * Configure Grafana container, use [this](http://docs.grafana.org/installation/docker/), [this](http://docs.grafana.org/installation/configuration/) and [this](http://docs.grafana.org/administration/provisioning/)
 * Add SSL with nginx container and [Let's Encrypt](https://letsencrypt.org/)
 * ~~Check [this ticket](https://github.com/PostgREST/postgrest/issues/256) on updates to upsert method so we can use PostgREST as an input too~~ Solved [here](https://github.com/PostgREST/postgrest/pull/1048)
+* Provision datasource to Grafana
+* Provision dashboard to Grafana
+* Create script to add users to Postgres that have INSERT permission to the API schema in the postgres database
