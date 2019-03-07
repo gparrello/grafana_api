@@ -41,6 +41,7 @@ psql -v ON_ERROR_STOP=1 \
       (
       id SERIAL PRIMARY KEY,
       submission_id INTEGER NOT NULL,
+      user INTEGER NOT NULL,
       datediff INTEGER NOT NULL,
       quantity INTEGER NOT NULL
     )
@@ -50,7 +51,8 @@ psql -v ON_ERROR_STOP=1 \
     CREATE TABLE ${API_SCHEMA}.results
       (
       id SERIAL PRIMARY KEY,
-      prediction_id INTEGER NOT NULL,
+      submission_id INTEGER NOT NULL,
+      user INTEGER NOT NULL,
       correct BOOLEAN NOT NULL
     )
     WITH (
