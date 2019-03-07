@@ -12,10 +12,10 @@ psql -v ON_ERROR_STOP=1 \
     CREATE TABLE ${API_SCHEMA}.predictions
       (
       id SERIAL PRIMARY KEY,
-      team_id "char" NOT NULL,
-      user_id integer,
-      datediff integer,
-      quantity integer,
+      team_id integer NOT NULL,
+      user_id integer NOT NULL,
+      datediff integer NOT NULL,
+      quantity integer NOT NULL,
       correct boolean
     )
     WITH (
