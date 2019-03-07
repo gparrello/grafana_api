@@ -28,11 +28,19 @@ psql -v ON_ERROR_STOP=1 \
     WITH (
       OIDS = FALSE
     );
-    CREATE TABLE ${API_SCHEMA}.predictions
+    CREATE TABLE ${API_SCHEMA}.submissions
       (
       id SERIAL PRIMARY KEY,
       team_id INTEGER NOT NULL,
-      user_id INTEGER NOT NULL,
+      timestamp TIMESTAMP NOT NULL
+    )
+    WITH (
+      OIDS = FALSE
+    );
+    CREATE TABLE ${API_SCHEMA}.predictions
+      (
+      id SERIAL PRIMARY KEY,
+      submission_id INTEGER NOT NULL,
       datediff INTEGER NOT NULL,
       quantity INTEGER NOT NULL
     )
