@@ -41,7 +41,7 @@ psql -v ON_ERROR_STOP=1 \
       (
       id SERIAL PRIMARY KEY,
       submission_id INTEGER NOT NULL,
-      user INTEGER NOT NULL,
+      usernum INTEGER NOT NULL,
       datediff INTEGER NOT NULL,
       quantity INTEGER NOT NULL
     )
@@ -52,7 +52,7 @@ psql -v ON_ERROR_STOP=1 \
       (
       id SERIAL PRIMARY KEY,
       submission_id INTEGER NOT NULL,
-      user INTEGER NOT NULL,
+      usernum INTEGER NOT NULL,
       correct BOOLEAN NOT NULL
     )
     WITH (
