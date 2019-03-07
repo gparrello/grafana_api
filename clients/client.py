@@ -7,26 +7,29 @@ __status__ = "Prototype"
 """
 client.py: Description of what client.py does.
 """
-import logging
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+# import logging
+# logging.basicConfig(level=logging.DEBUG)
+# logger = logging.getLogger(__name__)
 
 # Just add logger.debug('My message with %s', 'variable data') where you need data
 
+import configparser as cfg
 import pandas as pd
 import requests as re
 import datetime as dt
 import json
 
-protocol = 'http://'
-host = 'localhost'
+config = cfg.ConfigParser()
+config.read('config.ini')
 
-team = 'lolos'
-token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoid2ViX2Fub24ifQ.fVeM01NuFk7rKb8m9oVRyxZziAQbD72bdFcsKcQk-kA"
+protocol = 'http://'
+host = config['DEFAULT']['host']
+team = config['DEFAULT']['team']
+token = config['DEFAULT']['token']
 
 df = pd.read_csv('data.csv')
-if df.empty():
-    quit()
+# if df.empty():
+    # quit()
 # add unique usernum constrain!
 
 # get team id
@@ -34,12 +37,16 @@ endpoint = 'teams'
 condition = 'name=eq.{}'.format(team)
 url = protocol + host + '/' + endpoint + '?' + condition
 r = re.get(url)
-if len(r.json()) == 1: # check r.json() is list of length 1
+if len(r.json()) == 0: # check r.json() is list of length 0
+    print("error! no team with that name!")
+    quit()
+elif len(r.json()) == 1: # check r.json() is list of length 1
     team_id = r.json()[0]['id']
 else:
     print("error! more than one team with that name???")
     quit()
 
+# post submission and get submission id
 endpoint = 'submissions'
 url = protocol + host + '/' + endpoint
 headers = {
@@ -58,17 +65,20 @@ else:
     print("error! more than one submission posted at the same time???")
     quit()
 
-quit()
-
-
+# post predictions
+endpoint = 'predictions'
+url = protocol + host + '/' + endpoint
 headers = {
     "Content-Type": "application/json",
     "Authorization": "Bearer {}".format(token),
     "Prefer": "return=minimal",
 }
-payload = df.to_json(orient='records')
-url='http://localhost/predictions'
+df['submission_id'] = submission_id
+payload = df[[
+    'submission_id',
+    'usernum',
+    'datediff',
+    'quantity',
+]].to_json(orient='records')
 
-# r = re.get(url)
 r = re.post(url, data=payload, headers=headers)
-print(r.status_code)
