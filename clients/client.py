@@ -20,7 +20,7 @@ import datetime as dt
 import json
 
 config = cfg.ConfigParser()
-config.read('config.ini')
+config.read('.config.ini')
 
 protocol = 'http://'
 host = config['DEFAULT']['host']
