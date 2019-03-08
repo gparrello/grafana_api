@@ -28,7 +28,9 @@ psql -v ON_ERROR_STOP=1 \
       (
       id SERIAL PRIMARY KEY,
       team_id INTEGER REFERENCES ${API_SCHEMA}.teams NOT NULL,
-      timestamp TIMESTAMP NOT NULL
+      records_num INTEGER NOT NULL,
+      timestamp TIMESTAMP NOT NULL,
+      validated BOOLEAN DEFAULT FALSE
     ) WITH (OIDS = FALSE);
     CREATE TABLE ${API_SCHEMA}.predictions
       (
@@ -47,16 +49,21 @@ psql -v ON_ERROR_STOP=1 \
     ) WITH (OIDS = FALSE);
     /*GRANT INSERT ON ${API_SCHEMA}.test TO ${API_ANON_USER};*/
     GRANT SELECT ON ${API_SCHEMA}.teams TO ${API_ANON_USER};
+    GRANT SELECT ON ${API_SCHEMA}.teams TO ${RESULTS_USER};
     GRANT SELECT, INSERT ON ${API_SCHEMA}.submissions TO ${API_ANON_USER};
+    GRANT SELECT, UPDATE ON ${API_SCHEMA}.submissions TO ${RESULTS_USER};
     GRANT INSERT ON ${API_SCHEMA}.predictions TO ${API_ANON_USER};
     GRANT SELECT ON ${API_SCHEMA}.predictions TO ${RESULTS_USER};
     GRANT ALL ON ${API_SCHEMA}.results TO ${RESULTS_USER};
     /*GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.test_id_seq TO ${API_ANON_USER};*/
     GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.teams_id_seq TO ${API_ANON_USER};
+    GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.teams_id_seq TO ${RESULTS_USER};
     GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.submissions_id_seq TO ${API_ANON_USER};
+    GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.submissions_id_seq TO ${RESULTS_USER};
     GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.predictions_id_seq TO ${API_ANON_USER};
     GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.predictions_id_seq TO ${RESULTS_USER};
     GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.results_id_seq TO ${RESULTS_USER};
+    insert into api.teams (name) values ('lolos'), ('knns'), ('data_wizards'); /* remove this line */
 EOSQL
 
 psql -v ON_ERROR_STOP=1 \
