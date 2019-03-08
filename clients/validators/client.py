@@ -38,45 +38,21 @@ def submit_validations():
         # quit()
     # add unique usernum constrain!
 
-    # get not validated submissions
-    endpoint = 'submissions'
-    condition = 'validated=is.false'
-    url = protocol + host + '/' + endpoint + '?' + condition
-    r = re.get(url, headers=headers)
-    submissions = tuple([v['id'] for v in r.json()])
-
-    # get not validated predictions
-    endpoint = 'predictions'
-    if len(submissions) == 1:
-        condition = 'id=eq.{}'.format(submissions[0])
-    else:
-        condition = 'id=in.{}'.format(submissions)
-    url = protocol + host + '/' + endpoint + '?' + 'submission_' + condition
+    endpoint = 'validate'
+    url = protocol + host + '/' + endpoint
     r = re.get(url, headers=headers)
     if len(r.json()) == 0:
         print('nothing to validate here, bye!')
-        return
+        return(0)
 
-    # validate predictions
-    ## add clause to check length of predictions agains record_num in submission
     df = pd.DataFrame.from_dict(r.json(), orient='columns')
-    df.rename(columns = {'id': 'prediction_id'}, inplace = True)
     df['correct'] = True  # this is to be defined by the validator algorithm
-
-    # submit results
-    endpoint = 'results'
-    url = protocol + host + '/' + endpoint
-    payload = df[['prediction_id', 'usernum', 'correct']].to_json(orient='records')
+    payload = df.to_json(orient='records')
+    headers['Prefer'] = 'resolution=merge-duplicates'
     r = re.post(url, data=payload, headers=headers)
 
-    # update submissions as validated
-    endpoint = 'submissions'
-    url = protocol + host + '/' + endpoint + '?' + condition
-    payload = json.dumps([{'validated': 'TRUE'}]*len(submissions))
-    headers["Prefer"] = "return=representation"
-    r = re.patch(url, headers=headers, data=payload)
-
-    return
+    return(r.status_code)
 
 
-submit_validations()
+status = submit_validations()
+print(status)

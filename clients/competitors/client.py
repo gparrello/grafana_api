@@ -62,7 +62,6 @@ def submit_results(df):
         'timestamp': dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
     })
     r = re.post(url, headers=headers, data=payload)
-    print(r.json())
     if len(r.json()) == 1:
         submission_id = r.json()[0]['id']
     else:
@@ -87,7 +86,8 @@ def submit_results(df):
 
     r = re.post(url, data=payload, headers=headers)
 
-
+    return(r.status_code)
 
 df = pd.read_csv('data.csv')
-submit_results(df)
+status = submit_results(df)
+print(status)

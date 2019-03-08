@@ -38,33 +38,29 @@ psql -v ON_ERROR_STOP=1 \
       id SERIAL PRIMARY KEY,
       team_id INTEGER REFERENCES ${API_SCHEMA}.teams NOT NULL,
       records_num INTEGER NOT NULL,
-      timestamp TIMESTAMP NOT NULL,
-      validated BOOLEAN DEFAULT FALSE
+      timestamp TIMESTAMP NOT NULL
     ) WITH (OIDS = FALSE);
-    CREATE TABLE ${API_SCHEMA}.predictions
+    CREATE TABLE ${API_SCHEMA}.results
       (
       id SERIAL PRIMARY KEY,
       submission_id INTEGER REFERENCES ${API_SCHEMA}.submissions NOT NULL,
       usernum INTEGER NOT NULL,
       datediff INTEGER NOT NULL,
-      quantity INTEGER NOT NULL
+      quantity INTEGER NOT NULL,
+      correct BOOLEAN
     ) WITH (OIDS = FALSE);
-    CREATE TABLE ${API_SCHEMA}.results
-      (
-      id SERIAL PRIMARY KEY,
-      prediction_id INTEGER REFERENCES ${API_SCHEMA}.predictions NOT NULL,
-      usernum INTEGER NOT NULL,
-      correct BOOLEAN NOT NULL
-    ) WITH (OIDS = FALSE);
-    CREATE OR REPLACE VIEW api.tovalidate AS (
-      SELECT p.*
-      FROM api.predictions p
-	     LEFT JOIN api.results r ON (p.id = r.prediction_id)
-       WHERE r.id IS NULL
-    );
     /***********
     create views
     ***********/
+    CREATE OR REPLACE VIEW api.predictions AS
+      SELECT submission_id, usernum, datediff, quantity
+      FROM api.results
+    ;
+    CREATE OR REPLACE VIEW api.validate AS (
+      SELECT *
+      FROM api.results
+      WHERE correct IS NULL
+    );
     CREATE OR REPLACE VIEW api.validation_check AS (
       SELECT
 	      s.id AS submission_id,
@@ -77,11 +73,10 @@ psql -v ON_ERROR_STOP=1 \
         LEFT JOIN (
 		      SELECT
       			submission_id,
-      			SUM(CASE WHEN r.id IS NULL THEN 0 ELSE 1 END) AS validated,
-      			SUM(CASE WHEN r.id IS NULL THEN 1 ELSE 0 END) AS pending,
+      			SUM(CASE WHEN p.correct IS NULL THEN 0 ELSE 1 END) AS validated,
+      			SUM(CASE WHEN p.correct IS NULL THEN 1 ELSE 0 END) AS pending,
       			COUNT(p.id) AS total
-		      FROM api.predictions p
-			      LEFT JOIN api.results r ON (p.id = r.prediction_id)
+		      FROM api.results p
 		      GROUP BY submission_id
 	      ) p ON (s.id = p.submission_id)
       LEFT JOIN api.teams t ON (s.team_id = t.id)
@@ -100,17 +95,16 @@ psql -v ON_ERROR_STOP=1 \
     GRANT SELECT ON ${API_SCHEMA}.teams TO ${API_ANON_USER};
     GRANT SELECT ON ${API_SCHEMA}.teams TO ${RESULTS_USER};
     GRANT SELECT, INSERT ON ${API_SCHEMA}.submissions TO ${API_ANON_USER};
-    GRANT SELECT, UPDATE ON ${API_SCHEMA}.submissions TO ${RESULTS_USER};
+    GRANT SELECT ON ${API_SCHEMA}.submissions TO ${RESULTS_USER};
     GRANT INSERT ON ${API_SCHEMA}.predictions TO ${API_ANON_USER};
-    GRANT SELECT ON ${API_SCHEMA}.predictions TO ${RESULTS_USER};
-    GRANT ALL ON ${API_SCHEMA}.results TO ${RESULTS_USER};
+    GRANT SELECT ON ${API_SCHEMA}.results TO ${RESULTS_USER};
+    GRANT SELECT, INSERT, UPDATE ON ${API_SCHEMA}.validate TO ${RESULTS_USER};
     /*GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.test_id_seq TO ${API_ANON_USER};*/
     GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.teams_id_seq TO ${API_ANON_USER};
     GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.teams_id_seq TO ${RESULTS_USER};
     GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.submissions_id_seq TO ${API_ANON_USER};
     GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.submissions_id_seq TO ${RESULTS_USER};
-    GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.predictions_id_seq TO ${API_ANON_USER};
-    GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.predictions_id_seq TO ${RESULTS_USER};
+    GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.results_id_seq TO ${API_ANON_USER};
     GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.results_id_seq TO ${RESULTS_USER};
     insert into api.teams (name) values ('lolos'), ('knns'), ('data_wizards'); /* remove this line */
 EOSQL
