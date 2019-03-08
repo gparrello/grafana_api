@@ -47,6 +47,40 @@ psql -v ON_ERROR_STOP=1 \
       usernum INTEGER NOT NULL,
       correct BOOLEAN NOT NULL
     ) WITH (OIDS = FALSE);
+    CREATE OR REPLACE VIEW api.tovalidate AS (
+      SELECT p.*
+      FROM api.predictions p
+	     LEFT JOIN api.results r ON (p.id = r.prediction_id)
+       WHERE r.id IS NULL
+    );
+    CREATE OR REPLACE VIEW api.validation_check AS (
+      SELECT
+	      s.id AS submission_id,
+	      t.name AS team_name,
+	      (s.records_num - p.total)::int AS submission_error,
+	      p.validated::int,
+      	p.pending::int,
+      	p.total::int
+      FROM api.submissions s
+        LEFT JOIN (
+		      SELECT
+      			submission_id,
+      			SUM(CASE WHEN r.id IS NULL THEN 0 ELSE 1 END) AS validated,
+      			SUM(CASE WHEN r.id IS NULL THEN 1 ELSE 0 END) AS pending,
+      			COUNT(p.id) AS total
+		      FROM api.predictions p
+			      LEFT JOIN api.results r ON (p.id = r.prediction_id)
+		      GROUP BY submission_id
+	      ) p ON (s.id = p.submission_id)
+      LEFT JOIN api.teams t ON (s.team_id = t.id)
+    );
+    CREATE OR REPLACE VIEW api.last_submitter AS (
+      SELECT t.name AS team_name
+      FROM api.submissions s
+  	    LEFT JOIN api.teams t ON (s.team_id = t.id)
+      ORDER BY s.id DESC
+      LIMIT 1
+    );
     /*GRANT INSERT ON ${API_SCHEMA}.test TO ${API_ANON_USER};*/
     GRANT SELECT ON ${API_SCHEMA}.teams TO ${API_ANON_USER};
     GRANT SELECT ON ${API_SCHEMA}.teams TO ${RESULTS_USER};
