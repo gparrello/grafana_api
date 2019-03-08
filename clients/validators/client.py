@@ -46,7 +46,8 @@ def submit_validations():
         return(0)
 
     df = pd.DataFrame.from_dict(r.json(), orient='columns')
-    df['correct'] = True  # this is to be defined by the validator algorithm
+    import numpy as np
+    df['correct'] = np.random.choice([True, False], df.shape[0])  # this is to be defined by the validator algorithm
     payload = df.to_json(orient='records')
     headers['Prefer'] = 'resolution=merge-duplicates'
     r = re.post(url, data=payload, headers=headers)
