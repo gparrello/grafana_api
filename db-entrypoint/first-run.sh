@@ -52,10 +52,10 @@ psql -v ON_ERROR_STOP=1 \
     /***********
     create views
     ***********/
-    CREATE OR REPLACE VIEW api.predictions AS
+    CREATE OR REPLACE VIEW api.predictions AS (
       SELECT submission_id, usernum, datediff, quantity
       FROM api.results
-    ;
+    );
     CREATE OR REPLACE VIEW api.validate AS (
       SELECT *
       FROM api.results
@@ -87,6 +87,17 @@ psql -v ON_ERROR_STOP=1 \
   	    LEFT JOIN api.teams t ON (s.team_id = t.id)
       ORDER BY s.id DESC
       LIMIT 1
+    );
+    CREATE OR REPLACE VIEW api.metrics AS (
+      SELECT
+	     r.submission_id,
+	     t.name AS team_name,
+	     SUM(CASE WHEN r.correct IS TRUE THEN 1 ELSE 0 END)::FLOAT/COUNT(r.id) AS accuracy
+      FROM api.results r
+	     LEFT JOIN api.submissions s ON (r.submission_id = s.id)
+	     LEFT JOIN api.teams t ON (s.team_id = t.id)
+      GROUP BY t.name, r.submission_id
+      ORDER BY accuracy DESC
     );
     /***********
     grant permissions on tables and views
