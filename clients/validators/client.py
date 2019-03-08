@@ -60,12 +60,13 @@ def submit_validations():
     # validate predictions
     ## add clause to check length of predictions agains record_num in submission
     df = pd.DataFrame.from_dict(r.json(), orient='columns')
+    df.rename(columns = {'id': 'prediction_id'}, inplace = True)
     df['correct'] = True  # this is to be defined by the validator algorithm
 
     # submit results
     endpoint = 'results'
     url = protocol + host + '/' + endpoint
-    payload = df[['submission_id', 'usernum', 'correct']].to_json(orient='records')
+    payload = df[['prediction_id', 'usernum', 'correct']].to_json(orient='records')
     r = re.post(url, data=payload, headers=headers)
 
     # update submissions as validated

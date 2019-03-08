@@ -43,7 +43,7 @@ psql -v ON_ERROR_STOP=1 \
     CREATE TABLE ${API_SCHEMA}.results
       (
       id SERIAL PRIMARY KEY,
-      submission_id INTEGER REFERENCES ${API_SCHEMA}.submissions NOT NULL,
+      prediction_id INTEGER REFERENCES ${API_SCHEMA}.predictions NOT NULL,
       usernum INTEGER NOT NULL,
       correct BOOLEAN NOT NULL
     ) WITH (OIDS = FALSE);
