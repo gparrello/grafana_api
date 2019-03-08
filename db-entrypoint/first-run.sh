@@ -3,16 +3,25 @@
 psql -v ON_ERROR_STOP=1 \
 --username "${POSTGRES_USER}" --dbname "${POSTGRES_DB}" \
 <<-EOSQL
+    /***********
+    create roles
+    ***********/
     CREATE ROLE ${API_USER} WITH PASSWORD '${API_PASSWORD}' LOGIN;
     CREATE ROLE ${API_ANON_USER} NOLOGIN;
     CREATE ROLE ${RESULTS_USER} NOLOGIN;
     /*CREATE ROLE ${RESULTS_USER} WITH PASSWORD '${RESULTS_PASSWORD}' LOGIN;*/
+    /***********
+    grant permissions on schemas
+    ***********/
     GRANT ${API_ANON_USER} TO ${API_USER};
     GRANT ${RESULTS_USER} TO ${API_USER};
     CREATE SCHEMA IF NOT EXISTS ${API_SCHEMA};
     GRANT ALL ON SCHEMA ${API_SCHEMA} TO ${API_USER};
     GRANT USAGE ON SCHEMA ${API_SCHEMA} TO ${API_ANON_USER};
     GRANT USAGE ON SCHEMA ${API_SCHEMA} TO ${RESULTS_USER};
+    /***********
+    create tables
+    ***********/
     CREATE TABLE ${API_SCHEMA}.teams
       (
       id SERIAL PRIMARY KEY,
@@ -53,6 +62,9 @@ psql -v ON_ERROR_STOP=1 \
 	     LEFT JOIN api.results r ON (p.id = r.prediction_id)
        WHERE r.id IS NULL
     );
+    /***********
+    create views
+    ***********/
     CREATE OR REPLACE VIEW api.validation_check AS (
       SELECT
 	      s.id AS submission_id,
@@ -81,6 +93,9 @@ psql -v ON_ERROR_STOP=1 \
       ORDER BY s.id DESC
       LIMIT 1
     );
+    /***********
+    grant permissions on tables and views
+    **********/
     /*GRANT INSERT ON ${API_SCHEMA}.test TO ${API_ANON_USER};*/
     GRANT SELECT ON ${API_SCHEMA}.teams TO ${API_ANON_USER};
     GRANT SELECT ON ${API_SCHEMA}.teams TO ${RESULTS_USER};
