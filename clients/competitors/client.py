@@ -20,7 +20,10 @@ import datetime as dt
 import json
 
 
-def submit_results(config, df):
+def submit_results(df):
+
+    config = cfg.ConfigParser()
+    config.read('.config.ini')
 
     protocol = 'http://'
     host = config['DEFAULT']['host']
@@ -86,8 +89,5 @@ def submit_results(config, df):
 
 
 
-
-config = cfg.ConfigParser()
-config.read('.config.ini')
 df = pd.read_csv('data.csv')
-submit_results(config, df)
+submit_results(df)
