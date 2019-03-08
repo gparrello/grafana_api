@@ -52,16 +52,16 @@ psql -v ON_ERROR_STOP=1 \
     /***********
     create views
     ***********/
-    CREATE OR REPLACE VIEW api.predictions AS (
+    CREATE OR REPLACE VIEW ${API_SCHEMA}.predictions AS (
       SELECT submission_id, usernum, datediff, quantity
-      FROM api.results
+      FROM ${API_SCHEMA}.results
     );
-    CREATE OR REPLACE VIEW api.validate AS (
+    CREATE OR REPLACE VIEW ${API_SCHEMA}.validate AS (
       SELECT *
-      FROM api.results
+      FROM ${API_SCHEMA}.results
       WHERE correct IS NULL
     );
-    CREATE OR REPLACE VIEW api.validation_check AS (
+    CREATE OR REPLACE VIEW ${API_SCHEMA}.validation_check AS (
       SELECT
 	      s.id AS submission_id,
 	      t.name AS team_name,
@@ -69,33 +69,33 @@ psql -v ON_ERROR_STOP=1 \
 	      p.validated::int,
       	p.pending::int,
       	p.total::int
-      FROM api.submissions s
+      FROM ${API_SCHEMA}.submissions s
         LEFT JOIN (
 		      SELECT
       			submission_id,
       			SUM(CASE WHEN p.correct IS NULL THEN 0 ELSE 1 END) AS validated,
       			SUM(CASE WHEN p.correct IS NULL THEN 1 ELSE 0 END) AS pending,
       			COUNT(p.id) AS total
-		      FROM api.results p
+		      FROM ${API_SCHEMA}.results p
 		      GROUP BY submission_id
 	      ) p ON (s.id = p.submission_id)
-      LEFT JOIN api.teams t ON (s.team_id = t.id)
+      LEFT JOIN ${API_SCHEMA}.teams t ON (s.team_id = t.id)
     );
-    CREATE OR REPLACE VIEW api.last_submitter AS (
+    CREATE OR REPLACE VIEW ${API_SCHEMA}.last_submitter AS (
       SELECT t.name AS team_name
-      FROM api.submissions s
-  	    LEFT JOIN api.teams t ON (s.team_id = t.id)
+      FROM ${API_SCHEMA}.submissions s
+  	    LEFT JOIN ${API_SCHEMA}.teams t ON (s.team_id = t.id)
       ORDER BY s.id DESC
       LIMIT 1
     );
-    CREATE OR REPLACE VIEW api.metrics AS (
+    CREATE OR REPLACE VIEW ${API_SCHEMA}.metrics AS (
       SELECT
 	     r.submission_id,
 	     t.name AS team_name,
 	     SUM(CASE WHEN r.correct IS TRUE THEN 1 ELSE 0 END)::FLOAT/COUNT(r.id) AS accuracy
-      FROM api.results r
-	     LEFT JOIN api.submissions s ON (r.submission_id = s.id)
-	     LEFT JOIN api.teams t ON (s.team_id = t.id)
+      FROM ${API_SCHEMA}.results r
+	     LEFT JOIN ${API_SCHEMA}.submissions s ON (r.submission_id = s.id)
+	     LEFT JOIN ${API_SCHEMA}.teams t ON (s.team_id = t.id)
       GROUP BY t.name, r.submission_id
       ORDER BY accuracy DESC
     );
@@ -117,7 +117,7 @@ psql -v ON_ERROR_STOP=1 \
     GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.submissions_id_seq TO ${RESULTS_USER};
     GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.results_id_seq TO ${API_ANON_USER};
     GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.results_id_seq TO ${RESULTS_USER};
-    insert into api.teams (name) values ('lolos'), ('knns'), ('data_wizards'); /* remove this line */
+    insert into ${API_SCHEMA}.teams (name) values ('lolos'), ('knns'), ('data_wizards'); /* remove this line */
 EOSQL
 
 psql -v ON_ERROR_STOP=1 \
