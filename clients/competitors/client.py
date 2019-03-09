@@ -35,10 +35,15 @@ def submit_predictions(df):
     # add unique usernum constrain!
 
     # get team id
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer {}".format(token),
+        "Prefer": "return=representation",
+    }
     endpoint = 'teams'
     condition = 'name=eq.{}'.format(team)
     url = protocol + host + '/' + endpoint + '?' + condition
-    r = re.get(url)
+    r = re.get(url, headers=headers)
     if len(r.json()) == 0:  # check r.json() is list of length 0
         print("error! no team with that name!")
         quit()
@@ -51,11 +56,6 @@ def submit_predictions(df):
     # post submission and get submission id
     endpoint = 'submissions'
     url = protocol + host + '/' + endpoint
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer {}".format(token),
-        "Prefer": "return=representation",
-    }
     payload = json.dumps({
         'team_id': team_id,
         'records_num': len(df),
