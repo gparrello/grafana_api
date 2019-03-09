@@ -20,7 +20,7 @@ import datetime as dt
 import json
 
 
-def submit_results(df):
+def submit_predictions(df):
 
     config = cfg.ConfigParser()
     config.read('.config.ini')
@@ -88,6 +88,7 @@ def submit_results(df):
 
     return(r.status_code)
 
+
 df = pd.read_csv('data.csv')
-status = submit_results(df)
+status = submit_predictions(df)
 print(status)
