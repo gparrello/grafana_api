@@ -16,9 +16,11 @@ $ docker-compose up
 * ~~Provision datasource to Grafana~~ Done, can't use [environment variables](https://github.com/grafana/grafana/issues/12896) though
 * Provision dashboard to Grafana
 * ~~Create script to add users to Postgres that have INSERT permission to the API schema in the postgres database~~ Done
-* Give select permissions to grafana user in api table
-* Separate results boolean from api table
+* ~~Give select permissions to grafana user in api table~~ Done
+* ~~Separate results boolean from api table~~ Done
 * Add JWK generation to team creation script
 * Add send credentials by email to team creation script
 * Add test table and verification (being able to post to the API with generated token) in team creation script
 * Add SSL with nginx container and [Let's Encrypt](https://letsencrypt.org/)
+* Compare audit team with submitted team in a plot in grafana
+* ~~Count submission lines in a plot too~~ Done, created metrics views
