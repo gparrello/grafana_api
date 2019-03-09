@@ -7,7 +7,7 @@ datasources:
     # database: "${POSTGRES_DB}"
     database: postgres
     # user: "${RESULTS_USER}"
-    user: results
+    user: dashboard
     secureJsonData:
       # password: "${RESULTS_PASSWORD}"
       password: password
