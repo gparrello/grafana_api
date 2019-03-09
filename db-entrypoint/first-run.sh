@@ -66,6 +66,7 @@ psql -v ON_ERROR_STOP=1 \
     CREATE OR REPLACE VIEW ${API_SCHEMA}.validation_check AS (
       SELECT
 	      s.id AS submission_id,
+        s.timestamp AS time,
 	      t.name AS team_name,
 	      (s.records_num - p.total)::int AS submission_error,
 	      p.validated::int,
@@ -82,9 +83,12 @@ psql -v ON_ERROR_STOP=1 \
 		      GROUP BY submission_id
 	      ) p ON (s.id = p.submission_id)
       LEFT JOIN ${API_SCHEMA}.teams t ON (s.team_id = t.id)
+      ORDER BY time DESC
     );
     CREATE OR REPLACE VIEW ${API_SCHEMA}.last_submitter AS (
-      SELECT t.name AS team_name
+      SELECT
+        t.name AS team_name,
+        s.timestamp AS time
       FROM ${API_SCHEMA}.submissions s
   	    LEFT JOIN ${API_SCHEMA}.teams t ON (s.team_id = t.id)
       ORDER BY s.id DESC
@@ -92,12 +96,13 @@ psql -v ON_ERROR_STOP=1 \
     );
     CREATE OR REPLACE VIEW ${API_SCHEMA}.metrics AS (
       SELECT
-	     r.submission_id,
-	     t.name AS team_name,
-	     SUM(CASE WHEN r.correct IS TRUE THEN 1 ELSE 0 END)::FLOAT/COUNT(r.id) AS accuracy
+	      r.submission_id AS submission,
+	      t.name AS team_name,
+	      SUM(CASE WHEN r.correct IS TRUE THEN 1 ELSE 0 END)::FLOAT/COUNT(r.id) AS accuracy
       FROM ${API_SCHEMA}.results r
-	     LEFT JOIN ${API_SCHEMA}.submissions s ON (r.submission_id = s.id)
-	     LEFT JOIN ${API_SCHEMA}.teams t ON (s.team_id = t.id)
+	      LEFT JOIN ${API_SCHEMA}.submissions s ON (r.submission_id = s.id)
+	      LEFT JOIN ${API_SCHEMA}.teams t ON (s.team_id = t.id)
+      WHERE r.correct IS NOT NULL
       GROUP BY t.name, r.submission_id
       ORDER BY accuracy DESC
     );
