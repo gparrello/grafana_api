@@ -22,6 +22,19 @@ import json
 
 def submit_predictions(df):
 
+    """
+    """
+
+    if df.empty:
+        return("you passed an empty dataframe")
+
+    total_usernum = 100000
+    if len(df.usernum) < total_usernum:
+        return("you have less usernum than needed")
+
+    # if len(df.usernum) != len(df.usernum.unique()):
+        # return("you have non-unique usernum")
+
     config = cfg.ConfigParser()
     config.read('.config.ini')
 
@@ -29,10 +42,6 @@ def submit_predictions(df):
     host = config['DEFAULT']['host']
     team = config['DEFAULT']['team']
     token = config['DEFAULT']['token']
-
-    # if df.empty():
-        # quit()
-    # add unique usernum constrain!
 
     # get team id
     headers = {
