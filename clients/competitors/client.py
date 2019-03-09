@@ -50,6 +50,7 @@ def submit_predictions(df):
     elif len(r.json()) == 1:  # check r.json() is list of length 1
         team_id = r.json()[0]['id']
     else:
+        print(r.json()['message'])
         print("error! more than one team with that name???")
         quit()
 
