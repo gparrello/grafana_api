@@ -39,10 +39,10 @@ def submit_predictions(df):
     condition = 'name=eq.{}'.format(team)
     url = protocol + host + '/' + endpoint + '?' + condition
     r = re.get(url)
-    if len(r.json()) == 0: # check r.json() is list of length 0
+    if len(r.json()) == 0:  # check r.json() is list of length 0
         print("error! no team with that name!")
         quit()
-    elif len(r.json()) == 1: # check r.json() is list of length 1
+    elif len(r.json()) == 1:  # check r.json() is list of length 1
         team_id = r.json()[0]['id']
     else:
         print("error! more than one team with that name???")
