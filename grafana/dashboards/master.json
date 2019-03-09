@@ -15,7 +15,6 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 2,
   "links": [],
   "panels": [
     {
@@ -24,7 +23,7 @@
       "fontSize": "100%",
       "gridPos": {
         "h": 23,
-        "w": 11,
+        "w": 24,
         "x": 0,
         "y": 0
       },
@@ -152,5 +151,5 @@
   "timezone": "",
   "title": "Master",
   "uid": "jnOKeaCmk",
-  "version": 2
+  "version": 1
 }
