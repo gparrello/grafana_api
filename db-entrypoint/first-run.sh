@@ -120,7 +120,7 @@ psql -v ON_ERROR_STOP=1 \
     GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.submissions_id_seq TO ${RESULTS_USER};
     GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.results_id_seq TO ${API_ANON_USER};
     GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.results_id_seq TO ${RESULTS_USER};
-    insert into ${API_SCHEMA}.teams (name) values ('lolos'), ('knns'), ('data_wizards'); /* remove this line */
+    insert into ${API_SCHEMA}.teams (name) values ('lolos'), ('knns'), ('datawizards'); /* remove this line */
 EOSQL
 
 psql -v ON_ERROR_STOP=1 \
