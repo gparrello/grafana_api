@@ -2,3 +2,4 @@
 pgadmin/sessions/
 clients/*/.config.ini
 clients/competitors/data.csv
+clients/*/__pycache__
