@@ -22,10 +22,10 @@ import datetime as dt
 import json
 
 
-def submit_validations():
+def submit_validations(config_file):
 
     config = cfg.ConfigParser()
-    config.read('.config.ini')
+    config.read(config_file)
 
     protocol = 'http://'
     host = config['DEFAULT']['host']
@@ -55,7 +55,3 @@ def submit_validations():
     r = re.post(url, data=payload, headers=headers)
 
     return(r.status_code)
-
-
-status = submit_validations()
-print(status)
