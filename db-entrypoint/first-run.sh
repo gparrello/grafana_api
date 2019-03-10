@@ -24,25 +24,25 @@ psql -v ON_ERROR_STOP=1 \
     /***********
     create tables
     ***********/
-    CREATE TABLE ${API_SCHEMA}.teams
+    CREATE TABLE IF NOT EXISTS ${API_SCHEMA}.teams
       (
       id SERIAL PRIMARY KEY,
       name VARCHAR(64) NOT NULL UNIQUE
     ) WITH (OIDS = FALSE);
-    /*CREATE TABLE ${API_SCHEMA}.test
+    /*CREATE TABLE IF NOT EXISTS ${API_SCHEMA}.test
       (
       id SERIAL PRIMARY KEY,
       team_id INTEGER REFERENCES ${API_SCHEMA}.teams NOT NULL,
       test INTEGER NOT NULL
     ) WITH (OIDS = FALSE);*/
-    CREATE TABLE ${API_SCHEMA}.submissions
+    CREATE TABLE IF NOT EXISTS ${API_SCHEMA}.submissions
       (
       id SERIAL PRIMARY KEY,
       team_id INTEGER REFERENCES ${API_SCHEMA}.teams NOT NULL,
       records_num INTEGER NOT NULL,
       timestamp TIMESTAMP NOT NULL
     ) WITH (OIDS = FALSE);
-    CREATE TABLE ${API_SCHEMA}.results
+    CREATE TABLE IF NOT EXISTS ${API_SCHEMA}.results
       (
       id SERIAL PRIMARY KEY,
       submission_id INTEGER REFERENCES ${API_SCHEMA}.submissions NOT NULL,
