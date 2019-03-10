@@ -3,6 +3,7 @@ version: '3'
 volumes:
   db-data:
   grafana-data:
+  workbench-data:
 
 services:
 
@@ -11,6 +12,9 @@ services:
     restart: always
     ports:
       - ${POSTGRES_PORT}:5432
+    volumes:
+        - "./db-entrypoint:/docker-entrypoint-initdb.d"
+        - "db-data:/var/lib/postgresql/data" # based on: https://stackoverflow.com/questions/41637505/how-to-persist-data-in-a-dockerized-postgres-database-using-volumes
     environment:
       POSTGRES_USER: "${POSTGRES_USER}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
@@ -27,15 +31,14 @@ services:
       RESULTS_USER: "${RESULTS_USER}"
       RESULTS_PASSWORD: "${RESULTS_PASSWORD}"
       RESULTS_SCHEMA: "${RESULTS_SCHEMA}"
-    volumes:
-      - "./db-entrypoint:/docker-entrypoint-initdb.d"
-      - "db-data:/var/lib/postgresql/data" # based on: https://stackoverflow.com/questions/41637505/how-to-persist-data-in-a-dockerized-postgres-database-using-volumes
 
   workbench: # https://hub.docker.com/r/dpage/pgadmin4/
     image: "dpage/pgadmin4:4.2"
     restart: always
     ports:
       - ${WORKBENCH_PORT}:80
+    volumes:
+      - "workbench-data:/var/lib/pgadmin"
     environment:
       PGADMIN_DEFAULT_EMAIL: "${PGADMIN_DEFAULT_EMAIL}"
       PGADMIN_DEFAULT_PASSWORD: "${PGADMIN_DEFAULT_PASSWORD}"
@@ -60,9 +63,11 @@ services:
       - ${DASHBOARD_PORT}:3000
     volumes:
       - "grafana-data:/var/lib/grafana"
-      - "./grafana.ini:/etc/grafana/grafana.ini"
-      - "./grafana-provisioning:/etc/grafana/provisioning"
+      - "./grafana/grafana.ini:/etc/grafana/grafana.ini"
+      - "./grafana/provisioning:/etc/grafana/provisioning"
+      - "./grafana/dashboards:/var/lib/grafana/dashboards"
     environment:
+      GF_INSTALL_PLUGINS: "grafana-clock-panel"
       DASHBOARD_DB_USER: "${DASHBOARD_DB_USER}"
       DASHBOARD_DB_PASSWORD: "${DASHBOARD_DB_PASSWORD}"
       DASHBOARD_DB_DATABASE: "${DASHBOARD_DB_DATABASE}"
