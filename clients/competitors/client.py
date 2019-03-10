@@ -62,8 +62,7 @@ def submit_predictions(config_file, df):
         team_id = r.json()[0]['id']
     else:
         print(r.json()['message'])
-        print("error! more than one team with that name???")
-        quit()
+        return("error! more than one team with that name???")
 
     # post submission and get submission id
     endpoint = 'submissions'
@@ -77,8 +76,7 @@ def submit_predictions(config_file, df):
     if len(r.json()) == 1:
         submission_id = r.json()[0]['id']
     else:
-        print("error! more than one submission posted at the same time???")
-        quit()
+        return("error! more than one submission posted at the same time???")
 
     # post predictions
     endpoint = 'predictions'
