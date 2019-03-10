@@ -4,9 +4,11 @@
 __author__ = "Gerardo Parrello"
 __version__ = "0.0.1"
 __status__ = "Prototype"
+
 """
 client.py: Description of what client.py does.
 """
+
 # import logging
 # logging.basicConfig(level=logging.DEBUG)
 # logger = logging.getLogger(__name__)
