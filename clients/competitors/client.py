@@ -22,7 +22,7 @@ import datetime as dt
 import json
 
 
-def submit_predictions(df):
+def submit_predictions(config_file, df):
 
     """
     """
@@ -38,7 +38,7 @@ def submit_predictions(df):
         # return("you have non-unique usernum")
 
     config = cfg.ConfigParser()
-    config.read('.config.ini')
+    config.read(config_file)
 
     protocol = 'http://'
     host = config['DEFAULT']['host']
@@ -99,8 +99,3 @@ def submit_predictions(df):
     r = re.post(url, data=payload, headers=headers)
 
     return(r.status_code)
-
-
-df = pd.read_csv('data.csv')
-status = submit_predictions(df)
-print(status)
