@@ -3,7 +3,6 @@ version: '3'
 volumes:
   db-data:
   grafana-data:
-  workbench-data:
 
 services:
 
@@ -31,17 +30,6 @@ services:
       RESULTS_USER: "${RESULTS_USER}"
       RESULTS_PASSWORD: "${RESULTS_PASSWORD}"
       RESULTS_SCHEMA: "${RESULTS_SCHEMA}"
-
-  workbench: # https://hub.docker.com/r/dpage/pgadmin4/
-    image: "dpage/pgadmin4:4.2"
-    restart: always
-    ports:
-      - ${WORKBENCH_PORT}:80
-    volumes:
-      - "workbench-data:/var/lib/pgadmin"
-    environment:
-      PGADMIN_DEFAULT_EMAIL: "${PGADMIN_DEFAULT_EMAIL}"
-      PGADMIN_DEFAULT_PASSWORD: "${PGADMIN_DEFAULT_PASSWORD}"
 
   api: # docs: http://postgrest.org/en/v5.1/api.html
     image: "postgrest/postgrest:latest"
