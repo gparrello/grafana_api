@@ -29,12 +29,6 @@ psql -v ON_ERROR_STOP=1 \
       id SERIAL PRIMARY KEY,
       name VARCHAR(64) NOT NULL UNIQUE
     ) WITH (OIDS = FALSE);
-    /*CREATE TABLE IF NOT EXISTS ${API_SCHEMA}.test
-      (
-      id SERIAL PRIMARY KEY,
-      team_id INTEGER REFERENCES ${API_SCHEMA}.teams NOT NULL,
-      test INTEGER NOT NULL
-    ) WITH (OIDS = FALSE);*/
     CREATE TABLE IF NOT EXISTS ${API_SCHEMA}.submissions
       (
       id SERIAL PRIMARY KEY,
@@ -42,26 +36,29 @@ psql -v ON_ERROR_STOP=1 \
       records_num INTEGER NOT NULL,
       timestamp TIMESTAMP NOT NULL
     ) WITH (OIDS = FALSE);
-    CREATE TABLE IF NOT EXISTS ${API_SCHEMA}.results
+    CREATE TABLE IF NOT EXISTS ${API_SCHEMA}.real
+      (
+      customer INTEGER PRIMARY KEY,
+      date DATE NOT NULL,
+      billing NUMERIC(20, 2) NOT NULL
+    ) WITH (OIDS = FALSE);
+    CREATE TABLE IF NOT EXISTS ${API_SCHEMA}.predictions
       (
       id SERIAL PRIMARY KEY,
       submission_id INTEGER REFERENCES ${API_SCHEMA}.submissions NOT NULL,
-      usernum INTEGER NOT NULL,
-      datediff INTEGER NOT NULL,
-      quantity INTEGER NOT NULL,
-      correct BOOLEAN
+      customer INTEGER REFERENCES ${API_SCHEMA}.real NOT NULL,
+      date DATE NOT NULL,
+      billing NUMERIC(20, 2) NOT NULL
     ) WITH (OIDS = FALSE);
     /***********
     create views
     ***********/
-    CREATE OR REPLACE VIEW ${API_SCHEMA}.predictions AS (
-      SELECT submission_id, usernum, datediff, quantity
-      FROM ${API_SCHEMA}.results
-    );
-    CREATE OR REPLACE VIEW ${API_SCHEMA}.validate AS (
-      SELECT *
-      FROM ${API_SCHEMA}.results
-      WHERE correct IS NULL
+    CREATE OR REPLACE VIEW ${API_SCHEMA}.results AS (
+      SELECT
+        p.*,
+        TRUE AS correct /* calculate correct here */
+      FROM ${API_SCHEMA}.predictions p
+        LEFT JOIN ${API_SCHEMA}.real r ON (p.customer = r.customer)
     );
     CREATE OR REPLACE VIEW ${API_SCHEMA}.validation_check AS (
       SELECT
@@ -102,29 +99,27 @@ psql -v ON_ERROR_STOP=1 \
       FROM ${API_SCHEMA}.results r
 	      LEFT JOIN ${API_SCHEMA}.submissions s ON (r.submission_id = s.id)
 	      LEFT JOIN ${API_SCHEMA}.teams t ON (s.team_id = t.id)
-      WHERE r.correct IS NOT NULL
+      /*WHERE r.correct IS NOT NULL*/
       GROUP BY t.name, r.submission_id
       ORDER BY accuracy DESC
     );
     /***********
     grant permissions on tables and views
     **********/
-    /*GRANT INSERT ON ${API_SCHEMA}.test TO ${API_ANON_USER};*/
     GRANT SELECT ON ${API_SCHEMA}.teams TO ${API_ANON_USER};
     GRANT SELECT ON ${API_SCHEMA}.teams TO ${RESULTS_USER};
     GRANT SELECT, INSERT ON ${API_SCHEMA}.submissions TO ${API_ANON_USER};
     GRANT SELECT ON ${API_SCHEMA}.submissions TO ${RESULTS_USER};
     GRANT INSERT ON ${API_SCHEMA}.predictions TO ${API_ANON_USER};
-    GRANT SELECT ON ${API_SCHEMA}.results TO ${RESULTS_USER};
-    GRANT SELECT, INSERT, UPDATE ON ${API_SCHEMA}.validate TO ${RESULTS_USER};
+    GRANT SELECT ON ${API_SCHEMA}.predictions TO ${RESULTS_USER};
+    GRANT ALL ON ${API_SCHEMA}.real TO ${RESULTS_USER};
     GRANT SELECT ON ALL TABLES IN SCHEMA ${API_SCHEMA} TO ${DASHBOARD_USER};
-    /*GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.test_id_seq TO ${API_ANON_USER};*/
     GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.teams_id_seq TO ${API_ANON_USER};
     GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.teams_id_seq TO ${RESULTS_USER};
     GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.submissions_id_seq TO ${API_ANON_USER};
     GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.submissions_id_seq TO ${RESULTS_USER};
-    GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.results_id_seq TO ${API_ANON_USER};
-    GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.results_id_seq TO ${RESULTS_USER};
+    GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.predictions_id_seq TO ${API_ANON_USER};
+    GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.predictions_id_seq TO ${RESULTS_USER};
     insert into ${API_SCHEMA}.teams (name) values ('lolos'), ('knns'), ('datawizards'); /* remove this line */
 EOSQL
 
