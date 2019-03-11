@@ -25,3 +25,8 @@ $ docker-compose up
 * Compare audit team with submitted team in a plot in grafana
 * ~~Count submission lines in a plot too~~ Done, created metrics views
 * Add trigger to write team in submission or use default value (wrap ```current_setting('request.jwt.claim.team', true)``` in [function](https://github.com/PostgREST/postgrest/issues/990)?)
+* ~~insertar campo accuracy en tabla submissions y quitar de metrics~~ No es necesario, el accuracy se calcula en una vista
+* ~~cambiar vista validate a una vista de submissions donde accuracy = NULL~~ No, agregaremos resultados como tabla estatica y pondremos una vista que calcule accuracy
+* ~~cambiar results.datediff a tipo date con nombre date~~ Done
+* ~~cambiar results.quantity a tipo float con 2 decimales (scale 20, 2 decimales) con nombre billing~~ Done
+* agregar fingerprint?
