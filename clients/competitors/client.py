@@ -42,7 +42,6 @@ def submit_predictions(config_file, df):
 
     protocol = 'http://'
     host = config['DEFAULT']['host']
-    team = config['DEFAULT']['team']
     token = config['DEFAULT']['token']
 
     # get team id
@@ -56,7 +55,6 @@ def submit_predictions(config_file, df):
     endpoint = 'submissions'
     url = protocol + host + '/' + endpoint
     payload = json.dumps({
-        'team': team,
         'records_num': len(df),
     })
     r = re.post(url, headers=headers, data=payload)

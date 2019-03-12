@@ -27,7 +27,7 @@ psql -v ON_ERROR_STOP=1 \
     CREATE TABLE IF NOT EXISTS ${API_SCHEMA}.submissions
       (
       id SERIAL PRIMARY KEY,
-      team VARCHAR(64) NOT NULL,
+      team VARCHAR(64) /*NOT NULL*/ DEFAULT CURRENT_SETTING('request.jwt.claim.team', TRUE),
       records_num INTEGER NOT NULL,
       timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) WITH (OIDS = FALSE);
@@ -109,7 +109,7 @@ psql -v ON_ERROR_STOP=1 \
     **********/
     CREATE POLICY is_team ON ${API_SCHEMA}.submissions FOR ALL TO ${API_ANON_USER}
       USING (TRUE)
-      WITH CHECK (team = current_setting('request.jwt.claim.team', TRUE))
+      WITH CHECK (team = CURRENT_SETTING('request.jwt.claim.team', TRUE))
     ;
     /***********
     grant permissions on tables and views
