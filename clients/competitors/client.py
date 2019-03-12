@@ -30,8 +30,8 @@ def submit_predictions(config_file, df):
     if df.empty:
         return("you passed an empty dataframe")
 
-    total_usernum = 100000
-    if len(df.usernum) < total_usernum:
+    total_usernum = 3 #1000
+    if len(df.customer) < total_usernum:
         return("you have less usernum than needed")
 
     # if len(df.usernum) != len(df.usernum.unique()):
@@ -89,9 +89,9 @@ def submit_predictions(config_file, df):
     df['submission_id'] = submission_id
     payload = df[[
         'submission_id',
-        'usernum',
-        'datediff',
-        'quantity',
+        'customer',
+        'date',
+        'billing',
     ]].to_json(orient='records')
 
     r = re.post(url, data=payload, headers=headers)
