@@ -48,15 +48,21 @@ psql -v ON_ERROR_STOP=1 \
       submission_id INTEGER REFERENCES ${API_SCHEMA}.submissions NOT NULL,
       customer INTEGER REFERENCES ${API_SCHEMA}.real NOT NULL,
       date DATE NOT NULL,
-      billing NUMERIC(20, 2) NOT NULL
+      billing NUMERIC(20, 2) NOT NULL,
+      correct BOOLEAN
     ) WITH (OIDS = FALSE);
     /***********
     create views
     ***********/
     CREATE OR REPLACE VIEW ${API_SCHEMA}.results AS (
       SELECT
-        p.*,
-        TRUE AS correct /* calculate correct here */
+        p.id,
+        p.submission_id,
+        p.date AS predicted_date,
+        r.date AS real_date,
+        p.billing AS predicted_billing,
+        r.billing AS real_billing,
+        p.date = r.date AND ABS(p.billing - r.billing) <= 10 AS correct
       FROM ${API_SCHEMA}.predictions p
         LEFT JOIN ${API_SCHEMA}.real r ON (p.customer = r.customer)
     );
