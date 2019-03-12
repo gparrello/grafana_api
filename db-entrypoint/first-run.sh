@@ -62,7 +62,7 @@ psql -v ON_ERROR_STOP=1 \
         r.date AS real_date,
         p.billing AS predicted_billing,
         r.billing AS real_billing,
-        p.date = r.date AND ABS(p.billing - r.billing) <= 10 AS correct
+        (p.date = r.date AND ABS(p.billing - r.billing) <= 10) AS correct
       FROM ${API_SCHEMA}.predictions p
         LEFT JOIN ${API_SCHEMA}.real r ON (p.customer = r.customer)
     );
