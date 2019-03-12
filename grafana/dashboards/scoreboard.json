@@ -166,7 +166,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  team_name,\n  MAX(accuracy) AS accuracy\nFROM api.metrics\nGROUP BY team_name\nORDER BY accuracy DESC\nLIMIT 10\n;",
+          "rawSql": "SELECT\n  team,\n  MAX(accuracy) AS accuracy\nFROM api.metrics\nGROUP BY team\nORDER BY accuracy DESC\nLIMIT 10\n;",
           "refId": "A",
           "select": [
             [
@@ -449,14 +449,14 @@
         "lineColor": "rgb(31, 120, 193)",
         "show": false
       },
-      "tableColumn": "team_name",
+      "tableColumn": "team",
       "targets": [
         {
           "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT team_name FROM api.last_submitter;",
+          "rawSql": "SELECT team FROM api.last_submitter;",
           "refId": "A",
           "select": [
             [
@@ -612,5 +612,5 @@
   "timezone": "",
   "title": "Scoreboard",
   "uid": "Us9vlajmk",
-  "version": 4
+  "version": 1
 }
