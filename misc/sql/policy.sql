@@ -1,5 +1,5 @@
-DROP POLICY IF EXISTS chat_policy ON chat;
-CREATE POLICY chat_policy ON chat
-    USING ((message_to = current_user) OR (message_from = current_user))
-    WITH CHECK (message_from = current_user)
+DROP POLICY IF EXISTS is_team ON api.submissions;
+CREATE POLICY is_team ON api.submissions
+    USING (team = current_setting('request.jwt.claim.team', true))
+    WITH CHECK (team = current_setting('request.jwt.claim.team', true))
 ;
