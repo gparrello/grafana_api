@@ -45,8 +45,8 @@ def submit_predictions(config_file, df):
     token = config['DEFAULT']['token']
 
     # post predictions
-    endpoint = 'predictions'
-    url = protocol + host + '/' + endpoint
+    endpoint = '/predictions'
+    url = protocol + host + endpoint
     headers = {
         "Content-Type": "application/json",
         "Authorization": "Bearer {}".format(token),
@@ -57,7 +57,6 @@ def submit_predictions(config_file, df):
         'date',
         'billing',
     ]].to_json(orient='records')
-
     r = re.post(url, data=payload, headers=headers)
 
     return(r.status_code)
