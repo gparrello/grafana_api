@@ -22,9 +22,9 @@ $ docker-compose up
 * Add send credentials by email to team creation script
 * ~~Add test table and verification (being able to post to the API with generated token) in team creation script~~ Doesn't seem useful anymore
 * Add SSL with nginx container and [Let's Encrypt](https://letsencrypt.org/)
-* Compare audit team with submitted team in a plot in grafana
+* ~~Compare audit team with submitted team in a plot in grafana~~ Not needed any more, implemented through policies
 * ~~Count submission lines in a plot too~~ Done, created metrics views
-* Add trigger to write team in submission or use default value (wrap ```current_setting('request.jwt.claim.team', true)``` in [function](https://github.com/PostgREST/postgrest/issues/990)?)
+* ~~Add trigger to write team in submission or use default value (wrap ```current_setting('request.jwt.claim.team', true)``` in [function](https://github.com/PostgREST/postgrest/issues/990)?)~~ Not needed any more, submissions table was removed
 * ~~insertar campo accuracy en tabla submissions y quitar de metrics~~ No es necesario, el accuracy se calcula en una vista
 * ~~cambiar vista validate a una vista de submissions donde accuracy = NULL~~ No, agregaremos resultados como tabla estatica y pondremos una vista que calcule accuracy
 * ~~cambiar results.datediff a tipo date con nombre date~~ Done
