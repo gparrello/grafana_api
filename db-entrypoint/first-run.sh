@@ -24,18 +24,14 @@ psql -v ON_ERROR_STOP=1 \
     /***********
     create tables
     ***********/
-    CREATE TABLE IF NOT EXISTS ${API_SCHEMA}.teams
-      (
-      id SERIAL PRIMARY KEY,
-      name VARCHAR(64) NOT NULL UNIQUE
-    ) WITH (OIDS = FALSE);
     CREATE TABLE IF NOT EXISTS ${API_SCHEMA}.submissions
       (
       id SERIAL PRIMARY KEY,
-      team_id INTEGER REFERENCES ${API_SCHEMA}.teams NOT NULL,
+      team VARCHAR(64) NOT NULL,
       records_num INTEGER NOT NULL,
-      timestamp TIMESTAMP NOT NULL
+      timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) WITH (OIDS = FALSE);
+    ALTER TABLE ${API_SCHEMA}.submissions ENABLE ROW LEVEL SECURITY;
     CREATE TABLE IF NOT EXISTS ${API_SCHEMA}.real
       (
       customer INTEGER PRIMARY KEY,
@@ -70,63 +66,64 @@ psql -v ON_ERROR_STOP=1 \
       SELECT
 	      s.id AS submission_id,
         s.timestamp AS time,
-	      t.name AS team_name,
-	      (s.records_num - p.total)::int AS submission_error,
-	      p.validated::int,
-      	p.pending::int,
-      	p.total::int
+	      s.team AS team,
+        s.records_num,
+      	p.total::int AS submitted_rows,
+        (s.records_num - p.total)::int AS submission_error
       FROM ${API_SCHEMA}.submissions s
         LEFT JOIN (
 		      SELECT
       			submission_id,
-      			SUM(CASE WHEN p.correct IS NULL THEN 0 ELSE 1 END) AS validated,
-      			SUM(CASE WHEN p.correct IS NULL THEN 1 ELSE 0 END) AS pending,
       			COUNT(p.id) AS total
 		      FROM ${API_SCHEMA}.results p
 		      GROUP BY submission_id
 	      ) p ON (s.id = p.submission_id)
-      LEFT JOIN ${API_SCHEMA}.teams t ON (s.team_id = t.id)
       ORDER BY time DESC
     );
     CREATE OR REPLACE VIEW ${API_SCHEMA}.last_submitter AS (
       SELECT
-        t.name AS team_name,
+        s.team AS team,
         s.timestamp AS time
       FROM ${API_SCHEMA}.submissions s
-  	    LEFT JOIN ${API_SCHEMA}.teams t ON (s.team_id = t.id)
       ORDER BY s.id DESC
       LIMIT 1
     );
     CREATE OR REPLACE VIEW ${API_SCHEMA}.metrics AS (
       SELECT
 	      r.submission_id AS submission,
-	      t.name AS team_name,
+	      s.team AS team,
 	      SUM(CASE WHEN r.correct IS TRUE THEN 1 ELSE 0 END)::FLOAT/COUNT(r.id) AS accuracy
       FROM ${API_SCHEMA}.results r
 	      LEFT JOIN ${API_SCHEMA}.submissions s ON (r.submission_id = s.id)
-	      LEFT JOIN ${API_SCHEMA}.teams t ON (s.team_id = t.id)
-      /*WHERE r.correct IS NOT NULL*/
-      GROUP BY t.name, r.submission_id
+      GROUP BY s.team, r.submission_id
       ORDER BY accuracy DESC
     );
+    CREATE OR REPLACE VIEW ${API_SCHEMA}.total_submissions AS (
+      SELECT team, COUNT(id) AS total_submissions
+      FROM ${API_SCHEMA}.submissions
+      GROUP BY team
+      ORDER BY total_submissions DESC
+    );
+    /***********
+    create policy for row level security
+    **********/
+    CREATE POLICY is_team ON ${API_SCHEMA}.submissions FOR ALL TO ${API_ANON_USER}
+      USING (TRUE)
+      WITH CHECK (team = current_setting('request.jwt.claim.team', TRUE))
+    ;
     /***********
     grant permissions on tables and views
     **********/
-    GRANT SELECT ON ${API_SCHEMA}.teams TO ${API_ANON_USER};
-    GRANT SELECT ON ${API_SCHEMA}.teams TO ${RESULTS_USER};
     GRANT SELECT, INSERT ON ${API_SCHEMA}.submissions TO ${API_ANON_USER};
     GRANT SELECT ON ${API_SCHEMA}.submissions TO ${RESULTS_USER};
     GRANT INSERT ON ${API_SCHEMA}.predictions TO ${API_ANON_USER};
     GRANT SELECT ON ${API_SCHEMA}.predictions TO ${RESULTS_USER};
     GRANT ALL ON ${API_SCHEMA}.real TO ${RESULTS_USER};
     GRANT SELECT ON ALL TABLES IN SCHEMA ${API_SCHEMA} TO ${DASHBOARD_USER};
-    GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.teams_id_seq TO ${API_ANON_USER};
-    GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.teams_id_seq TO ${RESULTS_USER};
     GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.submissions_id_seq TO ${API_ANON_USER};
     GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.submissions_id_seq TO ${RESULTS_USER};
     GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.predictions_id_seq TO ${API_ANON_USER};
     GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.predictions_id_seq TO ${RESULTS_USER};
-    insert into ${API_SCHEMA}.teams (name) values ('lolos'), ('knns'), ('datawizards'); /* remove this line */
 EOSQL
 
 psql -v ON_ERROR_STOP=1 \
