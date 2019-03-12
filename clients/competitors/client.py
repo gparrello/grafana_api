@@ -44,39 +44,15 @@ def submit_predictions(config_file, df):
     host = config['DEFAULT']['host']
     token = config['DEFAULT']['token']
 
-    # get team id
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer {}".format(token),
-        "Prefer": "return=representation",
-    }
-
-    # post submission and get submission id
-    endpoint = 'submissions'
-    url = protocol + host + '/' + endpoint
-    payload = json.dumps({
-        'records_num': len(df),
-    })
-    r = re.post(url, headers=headers, data=payload)
-    if len(r.json()) == 1:
-        submission_id = r.json()[0]['id']
-    else:
-        print(r.json())
-        return("error! more than one submission posted at the same time???")
-
-    print(r.json())
-
     # post predictions
     endpoint = 'predictions'
     url = protocol + host + '/' + endpoint
     headers = {
         "Content-Type": "application/json",
         "Authorization": "Bearer {}".format(token),
-        "Prefer": "return=minimal",
+        "Prefer": "return=representation",
     }
-    df['submission_id'] = submission_id
     payload = df[[
-        'submission_id',
         'customer',
         'date',
         'billing',

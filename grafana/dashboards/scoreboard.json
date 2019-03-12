@@ -127,7 +127,7 @@
           "type": "date"
         },
         {
-          "alias": "",
+          "alias": "Accuracy",
           "colorMode": "cell",
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -146,18 +146,20 @@
           "unit": "percentunit"
         },
         {
-          "alias": "",
+          "alias": "Team",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "decimals": 0,
-          "pattern": "/.*/",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "team",
           "thresholds": [],
-          "type": "number",
-          "unit": "none"
+          "type": "string",
+          "unit": "short"
         }
       ],
       "targets": [
@@ -217,11 +219,11 @@
         {
           "alias": "Time",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
-          "pattern": "Time",
+          "pattern": "time",
           "type": "date"
         },
         {
-          "alias": "",
+          "alias": "Accuracy",
           "colorMode": "cell",
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -240,18 +242,20 @@
           "unit": "percentunit"
         },
         {
-          "alias": "",
+          "alias": "Team",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
             "rgba(237, 129, 40, 0.89)",
             "rgba(50, 172, 45, 0.97)"
           ],
-          "decimals": 0,
-          "pattern": "/.*/",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "team",
           "thresholds": [],
-          "type": "number",
-          "unit": "none"
+          "type": "string",
+          "unit": "short"
         }
       ],
       "targets": [
@@ -354,7 +358,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT time - (interval '1h') AS time FROM api.last_submitter;",
+          "rawSql": "SELECT time AS time FROM api.last_submitter;",
           "refId": "A",
           "select": [
             [
@@ -520,15 +524,33 @@
           "type": "date"
         },
         {
-          "alias": "",
+          "alias": "Team",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "team",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        },
+        {
+          "alias": "Submissions",
           "colorMode": "cell",
           "colors": [
             "rgba(50, 172, 45, 0.97)",
             "rgba(237, 129, 40, 0.89)",
             "rgba(245, 54, 54, 0.9)"
           ],
-          "decimals": 0,
-          "pattern": "/.*/",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": null,
+          "mappingType": 1,
+          "pattern": "total_submissions",
           "thresholds": [
             "10",
             "20"
