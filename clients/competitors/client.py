@@ -30,12 +30,12 @@ def submit_predictions(config_file, df):
     if df.empty:
         return("you passed an empty dataframe")
 
-    total_usernum = 3 #1000
-    if len(df.customer) < total_usernum:
-        return("you have less usernum than needed")
+    total_customer = 3 #1000
+    if len(df.customer) < total_customer:
+        return("you have less customer than needed")
 
-    # if len(df.usernum) != len(df.usernum.unique()):
-        # return("you have non-unique usernum")
+    if len(df.customer) != len(df.customer.unique()):
+        return("you have non-unique customer")
 
     config = cfg.ConfigParser()
     config.read(config_file)
