@@ -88,7 +88,7 @@
       "content": "<center>\n<h1>\nLast Submission\n</h1>\n</center>",
       "gridPos": {
         "h": 3,
-        "w": 4,
+        "w": 6,
         "x": 0,
         "y": 4
       },
@@ -106,8 +106,8 @@
       "fontSize": "200%",
       "gridPos": {
         "h": 21,
-        "w": 10,
-        "x": 4,
+        "w": 8,
+        "x": 6,
         "y": 4
       },
       "id": 6,
@@ -309,7 +309,7 @@
       },
       "gridPos": {
         "h": 3,
-        "w": 4,
+        "w": 3,
         "x": 0,
         "y": 7
       },
@@ -411,9 +411,9 @@
       },
       "gridPos": {
         "h": 3,
-        "w": 4,
-        "x": 0,
-        "y": 10
+        "w": 3,
+        "x": 3,
+        "y": 7
       },
       "id": 4,
       "interval": null,
@@ -492,6 +492,84 @@
         }
       ],
       "valueName": "avg"
+    },
+    {
+      "columns": [],
+      "datasource": "Postgres",
+      "fontSize": "160%",
+      "gridPos": {
+        "h": 15,
+        "w": 6,
+        "x": 0,
+        "y": 10
+      },
+      "id": 12,
+      "links": [],
+      "pageSize": null,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": null,
+        "desc": false
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "Time",
+          "type": "date"
+        },
+        {
+          "alias": "",
+          "colorMode": "cell",
+          "colors": [
+            "rgba(50, 172, 45, 0.97)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(245, 54, 54, 0.9)"
+          ],
+          "decimals": 0,
+          "pattern": "/.*/",
+          "thresholds": [
+            "10",
+            "20"
+          ],
+          "type": "number",
+          "unit": "none"
+        }
+      ],
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT * FROM api.total_submissions;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Total Submissions",
+      "transform": "table",
+      "type": "table"
     }
   ],
   "refresh": "5s",
@@ -534,5 +612,5 @@
   "timezone": "",
   "title": "Scoreboard",
   "uid": "Us9vlajmk",
-  "version": 3
+  "version": 4
 }
