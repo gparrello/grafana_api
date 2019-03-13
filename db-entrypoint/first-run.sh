@@ -39,8 +39,7 @@ psql -v ON_ERROR_STOP=1 \
       team_id INTEGER REFERENCES ${API_SCHEMA}.teams DEFAULT CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int,
       customer VARCHAR(6) REFERENCES ${API_SCHEMA}.real NOT NULL,
       date DATE NOT NULL,
-      billing NUMERIC(20, 2) NOT NULL,
-      correct BOOLEAN
+      billing NUMERIC(20, 2) NOT NULL
     ) WITH (OIDS = FALSE);
     ALTER TABLE ${API_SCHEMA}.predictions ENABLE ROW LEVEL SECURITY;
     /***********
