@@ -26,7 +26,7 @@ psql -v ON_ERROR_STOP=1 \
     ***********/
     CREATE TABLE IF NOT EXISTS ${API_SCHEMA}.real
       (
-      customer INTEGER PRIMARY KEY,
+      customer VARCHAR(6) PRIMARY KEY,
       date DATE NOT NULL,
       billing NUMERIC(20, 2) NOT NULL
     ) WITH (OIDS = FALSE);
@@ -35,7 +35,7 @@ psql -v ON_ERROR_STOP=1 \
       id SERIAL PRIMARY KEY,
       timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       team VARCHAR(64) DEFAULT CURRENT_SETTING('request.jwt.claim.team', TRUE),
-      customer INTEGER REFERENCES ${API_SCHEMA}.real NOT NULL,
+      customer VARCHAR(6) REFERENCES ${API_SCHEMA}.real NOT NULL,
       date DATE NOT NULL,
       billing NUMERIC(20, 2) NOT NULL,
       correct BOOLEAN
@@ -87,7 +87,7 @@ psql -v ON_ERROR_STOP=1 \
     **********/
     CREATE POLICY is_team ON ${API_SCHEMA}.predictions FOR ALL TO ${API_ANON_USER}
       USING (team = CURRENT_SETTING('request.jwt.claim.team', TRUE))
-      WITH CHECK (team = CURRENT_SETTING('request.jwt.claim.team', TRUE))
+      WITH CHECK (team = CURRENT_SETTING('request.jwt.claim.team', TRUE) AND timestamp = CURRENT_TIMESTAMP)
     ;
     /***********
     grant permissions on tables and views

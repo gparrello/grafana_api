@@ -10,7 +10,7 @@ datasources:
     user: dashboard
     secureJsonData:
       # password: "${RESULTS_PASSWORD}"
-      password: password
+      password: rxCkIfMDab1HZbbWsXX88dSTQ3r2VGzj
     jsonData:
       sslmode: "disable" # disable/require/verify-ca/verify-full
       maxOpenConns: 0         # Grafana v5.4+
