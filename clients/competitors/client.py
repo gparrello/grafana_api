@@ -56,7 +56,7 @@ def submit_predictions(config_file, df):
         'customer',
         'date',
         'billing',
-    ]].to_json(orient='records')
+    ]].to_json(orient='records', date_format='iso')
     r = re.post(url, data=payload, headers=headers)
 
     return(r.status_code)
