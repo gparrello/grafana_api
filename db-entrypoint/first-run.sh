@@ -24,17 +24,19 @@ psql -v ON_ERROR_STOP=1 \
     /***********
     create tables
     ***********/
-    CREATE TABLE IF NOT EXISTS ${API_SCHEMA}.real
-      (
+    CREATE TABLE IF NOT EXISTS ${API_SCHEMA}.teams (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(64)
+    );
+    CREATE TABLE IF NOT EXISTS ${API_SCHEMA}.real (
       customer VARCHAR(6) PRIMARY KEY,
       date DATE NOT NULL,
       billing NUMERIC(20, 2) NOT NULL
     ) WITH (OIDS = FALSE);
-    CREATE TABLE IF NOT EXISTS ${API_SCHEMA}.predictions
-      (
+    CREATE TABLE IF NOT EXISTS ${API_SCHEMA}.predictions (
       id SERIAL PRIMARY KEY,
       timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      team VARCHAR(64) DEFAULT CURRENT_SETTING('request.jwt.claim.team', TRUE),
+      team_id INTEGER DEFAULT CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int,
       customer VARCHAR(6) REFERENCES ${API_SCHEMA}.real NOT NULL,
       date DATE NOT NULL,
       billing NUMERIC(20, 2) NOT NULL,
@@ -47,7 +49,7 @@ psql -v ON_ERROR_STOP=1 \
     CREATE OR REPLACE VIEW ${API_SCHEMA}.results AS (
       SELECT
         p.timestamp,
-        p.team,
+        t.name AS team,
         p.date AS predicted_date,
         r.date AS real_date,
         p.billing AS predicted_billing,
@@ -55,12 +57,14 @@ psql -v ON_ERROR_STOP=1 \
         (p.date = r.date AND ABS(p.billing - r.billing) <= 10) AS correct
       FROM ${API_SCHEMA}.predictions p
         LEFT JOIN ${API_SCHEMA}.real r ON (p.customer = r.customer)
+        LEFT JOIN ${API_SCHEMA}.teams t ON (p.team_id = t.id)
     );
     CREATE OR REPLACE VIEW ${API_SCHEMA}.last_submitter AS (
       SELECT
-        p.team AS team,
+        t.name AS team,
         p.timestamp AS time
       FROM ${API_SCHEMA}.predictions p
+        LEFT JOIN ${API_SCHEMA}.teams t ON (p.team_id = t.id)
       GROUP BY team, time
       ORDER BY time DESC
       LIMIT 1
@@ -76,9 +80,10 @@ psql -v ON_ERROR_STOP=1 \
     );
     CREATE OR REPLACE VIEW ${API_SCHEMA}.total_submissions AS (
       SELECT
-        team,
+        t.name AS team,
         COUNT(DISTINCT timestamp) AS total_submissions
-      FROM ${API_SCHEMA}.predictions
+      FROM ${API_SCHEMA}.predictions p
+        LEFT JOIN ${API_SCHEMA}.teams t ON (p.team_id = t.id)
       GROUP BY team
       ORDER BY total_submissions DESC
     );
@@ -86,8 +91,8 @@ psql -v ON_ERROR_STOP=1 \
     create policy for row level security
     **********/
     CREATE POLICY is_team ON ${API_SCHEMA}.predictions FOR ALL TO ${API_ANON_USER}
-      USING (team = CURRENT_SETTING('request.jwt.claim.team', TRUE))
-      WITH CHECK (team = CURRENT_SETTING('request.jwt.claim.team', TRUE) AND timestamp = CURRENT_TIMESTAMP)
+      USING (team_id = CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int)
+      WITH CHECK (team_id = CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int AND timestamp = CURRENT_TIMESTAMP)
     ;
     /***********
     grant permissions on tables and views
