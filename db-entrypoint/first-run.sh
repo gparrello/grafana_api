@@ -76,7 +76,7 @@ psql -v ON_ERROR_STOP=1 \
 	      SUM(CASE WHEN r.correct IS TRUE THEN 1 ELSE 0 END)::FLOAT/COUNT(r.correct) AS accuracy
       FROM ${API_SCHEMA}.results r
       GROUP BY r.team, r.timestamp
-      ORDER BY accuracy DESC
+      ORDER BY accuracy DESC, time
     );
     CREATE OR REPLACE VIEW ${API_SCHEMA}.total_submissions AS (
       SELECT
