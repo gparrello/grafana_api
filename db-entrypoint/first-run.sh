@@ -88,11 +88,24 @@ psql -v ON_ERROR_STOP=1 \
       ORDER BY total_submissions DESC
     );
     /***********
+    create functions
+    ***********/
+    CREATE OR REPLACE FUNCTION count_submissions(in teamid int)
+    RETURNS int AS \$\$
+    SELECT COUNT(DISTINCT timestamp)::int
+    FROM ${API_SCHEMA}.predictions p
+    WHERE p.team_id = \$1
+    \$\$ LANGUAGE sql;
+    /***********
     create policy for row level security
     **********/
     CREATE POLICY is_team ON ${API_SCHEMA}.predictions FOR ALL TO ${API_ANON_USER}
       USING (team_id = CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int)
-      WITH CHECK (team_id = CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int AND timestamp = CURRENT_TIMESTAMP)
+      WITH CHECK (
+          team_id = CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int
+      AND timestamp = CURRENT_TIMESTAMP
+      AND count_submissions(CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int) <= 20
+      )
     ;
     /***********
     grant permissions on tables and views
