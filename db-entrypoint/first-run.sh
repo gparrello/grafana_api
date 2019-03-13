@@ -36,7 +36,7 @@ psql -v ON_ERROR_STOP=1 \
     CREATE TABLE IF NOT EXISTS ${API_SCHEMA}.predictions (
       id SERIAL PRIMARY KEY,
       timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      team_id INTEGER DEFAULT CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int,
+      team_id INTEGER REFERENCES ${API_SCHEMA}.teams DEFAULT CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int,
       customer VARCHAR(6) REFERENCES ${API_SCHEMA}.real NOT NULL,
       date DATE NOT NULL,
       billing NUMERIC(20, 2) NOT NULL,
