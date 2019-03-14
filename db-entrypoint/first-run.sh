@@ -89,11 +89,11 @@ psql -v ON_ERROR_STOP=1 \
     /***********
     create functions
     ***********/
-    CREATE OR REPLACE FUNCTION count_submissions(in teamid int)
+    CREATE OR REPLACE FUNCTION ${API_SCHEMA}.count_submissions(in teamid int)
     RETURNS int AS \$\$
-    SELECT COUNT(DISTINCT timestamp)::int
-    FROM ${API_SCHEMA}.predictions p
-    WHERE p.team_id = \$1
+      SELECT COUNT(DISTINCT timestamp)::int
+      FROM ${API_SCHEMA}.predictions p
+      WHERE p.team_id = \$1
     \$\$ LANGUAGE sql;
     /***********
     create policy for row level security
