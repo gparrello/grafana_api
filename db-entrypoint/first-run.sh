@@ -95,6 +95,11 @@ psql -v ON_ERROR_STOP=1 \
       FROM ${API_SCHEMA}.predictions p
       WHERE p.team_id = \$1
     \$\$ LANGUAGE sql;
+    CREATE OR REPLACE FUNCTION ${API_SCHEMA}.count_real()
+      RETURNS int AS \$\$
+      SELECT COUNT(customer)::int
+      FROM ${API_SCHEMA}.real r
+    \$\$ LANGUAGE sql;
     /***********
     create policy for row level security
     **********/
