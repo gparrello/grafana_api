@@ -32,3 +32,4 @@ $ docker-compose up
 * Add JWK generation to team creation script
 * Add send credentials by email to team creation script
 * Add SSL with nginx container and [Let's Encrypt](https://letsencrypt.org/)
+* add policy: count rows per submission = rows in real
