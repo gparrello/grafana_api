@@ -98,7 +98,9 @@ psql -v ON_ERROR_STOP=1 \
     /***********
     create policy for row level security
     **********/
-    CREATE POLICY is_team ON ${API_SCHEMA}.predictions FOR ALL TO ${API_ANON_USER}
+    CREATE POLICY is_team ON ${API_SCHEMA}.predictions
+    FOR ALL
+    TO ${API_ANON_USER}
       USING (team_id = CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int)
       WITH CHECK (
           team_id = CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int
