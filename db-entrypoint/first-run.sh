@@ -92,6 +92,9 @@ psql -v ON_ERROR_STOP=1 \
       GROUP BY team
       ORDER BY total_submissions DESC
     );
+    CREATE OR REPLACE VIEW ${API_SCHEMA}.total_real AS (
+      SELECT COUNT(customer) AS total FROM ${API_SCHEMA}.real
+    );
     /***********
     create functions
     ***********/
@@ -124,6 +127,17 @@ psql -v ON_ERROR_STOP=1 \
       SELECT COUNT(customer)::int
       FROM ${API_SCHEMA}.real r
     \$\$ LANGUAGE sql;
+    CREATE OR REPLACE FUNCTION ${API_SCHEMA}.check_row_count()
+    RETURNS bool AS \$\$
+      DECLARE
+        v_cnt int;
+   	    v_real int;
+    BEGIN
+      GET DIAGNOSTICS v_cnt = row_count;
+      SELECT total INTO v_real FROM ${API_SCHEMA}.total_real;
+      RETURN v_cnt = v_real;
+    END;
+    \$\$ LANGUAGE plpgsql STABLE COST 100000;
     /***********
     create policy for row level security
     **********/
@@ -138,6 +152,7 @@ psql -v ON_ERROR_STOP=1 \
             team_id = ${API_SCHEMA}.get_team_id()
         AND ${API_SCHEMA}.get_enabled(${API_SCHEMA}.get_team_id()) IS TRUE
         AND timestamp = CURRENT_TIMESTAMP
+        /*AND ${API_SCHEMA}.check_row_count() IS TRUE*/
         AND (
           ${API_SCHEMA}.get_submissions_limit(${API_SCHEMA}.get_team_id()) IS NULL  /* if limit is empty, no limit */
           OR
@@ -150,6 +165,7 @@ psql -v ON_ERROR_STOP=1 \
     **********/
     GRANT SELECT ON ${API_SCHEMA}.teams TO ${API_ANON_USER};
     GRANT SELECT, INSERT ON ${API_SCHEMA}.predictions TO ${API_ANON_USER};
+    GRANT SELECT ON ${API_SCHEMA}.total_real TO ${API_ANON_USER};
     GRANT ALL ON ${API_SCHEMA}.real TO ${RESULTS_USER};
     GRANT SELECT ON ALL TABLES IN SCHEMA ${API_SCHEMA} TO ${DASHBOARD_USER};
     GRANT USAGE, SELECT ON SEQUENCE ${API_SCHEMA}.predictions_id_seq TO ${API_ANON_USER};
