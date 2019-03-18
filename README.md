@@ -28,8 +28,8 @@ $ docker-compose up
 * ~~cambiar results.quantity a tipo float con 2 decimales (scale 20, 2 decimales) con nombre billing~~ Done
 * add fingerprint?
 * better python and R clients, more robust
-* add team tables, swap team to team_id in token, join team name in all tables that use team column
+* ~~add team tables, swap team to team_id in token, join team name in all tables that use team column~~ Done
 * Add JWK generation to team creation script
 * Add send credentials by email to team creation script
 * Add SSL with nginx container and [Let's Encrypt](https://letsencrypt.org/)
-* add policy: count rows per submission = rows in real
+* ~~add policy: count rows per submission = rows in real~~ Done, but current implementation not working
