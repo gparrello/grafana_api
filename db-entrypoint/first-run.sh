@@ -144,6 +144,7 @@ psql -v ON_ERROR_STOP=1 \
     /***********
     grant permissions on tables and views
     **********/
+    GRANT SELECT ON ${API_SCHEMA}.teams TO ${API_ANON_USER};
     GRANT SELECT, INSERT ON ${API_SCHEMA}.predictions TO ${API_ANON_USER};
     GRANT ALL ON ${API_SCHEMA}.real TO ${RESULTS_USER};
     GRANT SELECT ON ALL TABLES IN SCHEMA ${API_SCHEMA} TO ${DASHBOARD_USER};
