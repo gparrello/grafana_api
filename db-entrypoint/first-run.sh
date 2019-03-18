@@ -116,8 +116,12 @@ psql -v ON_ERROR_STOP=1 \
       USING (team_id = CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int)
       WITH CHECK (
           team_id = CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int
-      AND timestamp = CURRENT_TIMESTAMP
-      AND ${API_SCHEMA}.count_submissions(CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int) <= ${API_SCHEMA}.get_submissions_limit(CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int)
+          AND timestamp = CURRENT_TIMESTAMP
+          AND (
+            ${API_SCHEMA}.get_submissions_limit(CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int) = 0  /* if limit is 0, no limit */
+            OR
+            ${API_SCHEMA}.count_submissions(CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int) <= ${API_SCHEMA}.get_submissions_limit(CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int)
+          )
       )
     ;
     /***********
