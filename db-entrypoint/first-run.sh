@@ -26,7 +26,7 @@ psql -v ON_ERROR_STOP=1 \
     ***********/
     CREATE TABLE IF NOT EXISTS ${API_SCHEMA}.teams (
       id SERIAL PRIMARY KEY,
-      enabled BOOLEAN DEFAULT TRUE,
+      enabled BOOLEAN NOT NULL DEFAULT TRUE,
       name VARCHAR(64),
       submissions_limit INTEGER DEFAULT 20
     );
@@ -135,7 +135,7 @@ psql -v ON_ERROR_STOP=1 \
         AND ${API_SCHEMA}.get_enabled(${API_SCHEMA}.get_team_id()) IS TRUE
         AND timestamp = CURRENT_TIMESTAMP
         AND (
-          ${API_SCHEMA}.get_submissions_limit(${API_SCHEMA}.get_team_id()) = 0  /* if limit is 0, no limit */
+          ${API_SCHEMA}.get_submissions_limit(${API_SCHEMA}.get_team_id()) IS NULL  /* if limit is empty, no limit */
           OR
           ${API_SCHEMA}.count_submissions(${API_SCHEMA}.get_team_id()) <= ${API_SCHEMA}.get_submissions_limit(${API_SCHEMA}.get_team_id())
         )
