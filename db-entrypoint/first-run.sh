@@ -28,6 +28,7 @@ psql -v ON_ERROR_STOP=1 \
       id SERIAL PRIMARY KEY,
       enabled BOOLEAN NOT NULL DEFAULT TRUE,
       name VARCHAR(64),
+      is_tester BOOLEAN NOT NULL DEFAULT FALSE,
       submissions_limit INTEGER DEFAULT 20
     );
     CREATE TABLE IF NOT EXISTS ${API_SCHEMA}.real (
@@ -59,6 +60,7 @@ psql -v ON_ERROR_STOP=1 \
       FROM ${API_SCHEMA}.predictions p
         LEFT JOIN ${API_SCHEMA}.real r ON (p.customer = r.customer)
         LEFT JOIN ${API_SCHEMA}.teams t ON (p.team_id = t.id)
+      WHERE t.is_tester IS FALSE
     );
     CREATE OR REPLACE VIEW ${API_SCHEMA}.last_submitter AS (
       SELECT
@@ -66,6 +68,7 @@ psql -v ON_ERROR_STOP=1 \
         p.timestamp AS time
       FROM ${API_SCHEMA}.predictions p
         LEFT JOIN ${API_SCHEMA}.teams t ON (p.team_id = t.id)
+      WHERE t.is_tester IS FALSE
       GROUP BY team, time
       ORDER BY time DESC
       LIMIT 1
@@ -85,6 +88,7 @@ psql -v ON_ERROR_STOP=1 \
         COUNT(DISTINCT timestamp) AS total_submissions
       FROM ${API_SCHEMA}.predictions p
         LEFT JOIN ${API_SCHEMA}.teams t ON (p.team_id = t.id)
+      WHERE t.is_tester IS FALSE
       GROUP BY team
       ORDER BY total_submissions DESC
     );
