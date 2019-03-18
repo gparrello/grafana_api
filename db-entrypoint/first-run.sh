@@ -26,6 +26,7 @@ psql -v ON_ERROR_STOP=1 \
     ***********/
     CREATE TABLE IF NOT EXISTS ${API_SCHEMA}.teams (
       id SERIAL PRIMARY KEY,
+      enabled BOOLEAN DEFAULT TRUE,
       name VARCHAR(64),
       submissions_limit INTEGER DEFAULT 20
     );
@@ -90,6 +91,18 @@ psql -v ON_ERROR_STOP=1 \
     /***********
     create functions
     ***********/
+    CREATE OR REPLACE FUNCTION ${API_SCHEMA}.get_team_id()
+    RETURNS int AS \$\$
+    BEGIN
+      RETURN CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int;
+    END;
+    \$\$ LANGUAGE plpgsql STABLE COST 100000;
+    CREATE OR REPLACE FUNCTION ${API_SCHEMA}.get_enabled(in teamid int)
+    RETURNS bool AS \$\$
+      SELECT enabled
+      FROM ${API_SCHEMA}.teams t
+      WHERE t.id = \$1
+    \$\$ LANGUAGE sql;
     CREATE OR REPLACE FUNCTION ${API_SCHEMA}.count_submissions(in teamid int)
     RETURNS int AS \$\$
       SELECT COUNT(DISTINCT timestamp)::int
@@ -103,7 +116,7 @@ psql -v ON_ERROR_STOP=1 \
       WHERE t.id = \$1
     \$\$ LANGUAGE sql;
     CREATE OR REPLACE FUNCTION ${API_SCHEMA}.count_real()
-      RETURNS int AS \$\$
+    RETURNS int AS \$\$
       SELECT COUNT(customer)::int
       FROM ${API_SCHEMA}.real r
     \$\$ LANGUAGE sql;
@@ -113,15 +126,19 @@ psql -v ON_ERROR_STOP=1 \
     CREATE POLICY is_team ON ${API_SCHEMA}.predictions
     FOR ALL
     TO ${API_ANON_USER}
-      USING (team_id = CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int)
+      USING (
+            team_id = ${API_SCHEMA}.get_team_id()
+        AND ${API_SCHEMA}.get_enabled(${API_SCHEMA}.get_team_id()) IS TRUE
+      )
       WITH CHECK (
-          team_id = CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int
-          AND timestamp = CURRENT_TIMESTAMP
-          AND (
-            ${API_SCHEMA}.get_submissions_limit(CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int) = 0  /* if limit is 0, no limit */
-            OR
-            ${API_SCHEMA}.count_submissions(CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int) <= ${API_SCHEMA}.get_submissions_limit(CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int)
-          )
+            team_id = ${API_SCHEMA}.get_team_id()
+        AND ${API_SCHEMA}.get_enabled(${API_SCHEMA}.get_team_id()) IS TRUE
+        AND timestamp = CURRENT_TIMESTAMP
+        AND (
+          ${API_SCHEMA}.get_submissions_limit(${API_SCHEMA}.get_team_id()) = 0  /* if limit is 0, no limit */
+          OR
+          ${API_SCHEMA}.count_submissions(${API_SCHEMA}.get_team_id()) <= ${API_SCHEMA}.get_submissions_limit(${API_SCHEMA}.get_team_id())
+        )
       )
     ;
     /***********
