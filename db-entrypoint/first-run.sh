@@ -26,7 +26,8 @@ psql -v ON_ERROR_STOP=1 \
     ***********/
     CREATE TABLE IF NOT EXISTS ${API_SCHEMA}.teams (
       id SERIAL PRIMARY KEY,
-      name VARCHAR(64)
+      name VARCHAR(64),
+      submissions_limit INTEGER DEFAULT 20
     );
     CREATE TABLE IF NOT EXISTS ${API_SCHEMA}.real (
       customer VARCHAR(6) PRIMARY KEY,
@@ -95,6 +96,12 @@ psql -v ON_ERROR_STOP=1 \
       FROM ${API_SCHEMA}.predictions p
       WHERE p.team_id = \$1
     \$\$ LANGUAGE sql;
+    CREATE OR REPLACE FUNCTION ${API_SCHEMA}.get_submissions_limit(in teamid int)
+    RETURNS int AS \$\$
+      SELECT submissions_limit
+      FROM ${API_SCHEMA}.teams t
+      WHERE t.id = \$1
+    \$\$ LANGUAGE sql;
     CREATE OR REPLACE FUNCTION ${API_SCHEMA}.count_real()
       RETURNS int AS \$\$
       SELECT COUNT(customer)::int
@@ -110,7 +117,7 @@ psql -v ON_ERROR_STOP=1 \
       WITH CHECK (
           team_id = CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int
       AND timestamp = CURRENT_TIMESTAMP
-      AND count_submissions(CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int) <= 20
+      AND ${API_SCHEMA}.count_submissions(CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int) <= ${API_SCHEMA}.get_submissions_limit(CURRENT_SETTING('request.jwt.claim.team_id', TRUE)::int)
       )
     ;
     /***********
